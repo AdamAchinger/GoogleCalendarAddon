@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Google Calendar Event Calculator",
+  "version": "1.1",
+  "description": "Pokazuje czas trwania wydarzeń w Google Calendar i podlicza łączny czas wybranych elementów.",
+  "permissions": ["activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": ["*://calendar.google.com/*"],
+      "css": ["styles.css"],
+      "js": ["content.js"]
+    }
+  ]
+}
