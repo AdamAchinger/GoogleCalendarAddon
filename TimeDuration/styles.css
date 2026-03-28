@@ -1,11 +1,10 @@
-/* styles.css */
+/* styles.css — GCal Time Duration */
 
 .event-duration-badge {
   position: absolute;
   top: 2px;
   right: 2px;
-  /* Delikatny, na wpół przezroczysty overlay (szkło) */
-  background-color: rgba(255, 255, 255, 0.45); 
+  background-color: rgba(255, 255, 255, 0.45);
   color: #222;
   padding: 1px 4px;
   border-radius: 3px;
@@ -17,11 +16,10 @@
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   transition: all 0.2s ease;
-  white-space: nowrap; 
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* ledwo zauważalny cień wtopienia */
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/* Po najechaniu myszką wyostrzamy by było jasne, że to klikalne */
 .event-duration-badge:hover {
   background-color: rgba(255, 255, 255, 0.9);
   transform: scale(1.05);
@@ -29,7 +27,6 @@
 }
 
 .badge-selected {
-  /* Głębszy kolor dla zaznaczonych elementów (kolorystyka GCal) */
   background-color: rgba(26, 115, 232, 0.9);
   color: white;
   border-color: rgba(26, 115, 232, 1);
@@ -41,7 +38,6 @@
 }
 
 .selected-for-sum {
-  /* Subtelne zaznaczenie całego wydarzenia bez psucia oryginalnego CSS kalendarza */
   box-shadow: inset 0 0 0 2px rgba(26, 115, 232, 0.7) !important;
 }
 

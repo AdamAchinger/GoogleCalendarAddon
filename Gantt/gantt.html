@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Widok Gantta — Google Calendar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="gantt.css">
+</head>
+<body>
+  <!-- Floating tooltip -->
+  <div class="gantt-tooltip" id="gantt-tooltip">
+    <div class="tooltip-title" id="tt-title"></div>
+    <div class="tooltip-time"  id="tt-time"></div>
+    <div class="tooltip-cal">
+      <div class="tooltip-dot" id="tt-dot"></div>
+      <span id="tt-cal"></span>
+    </div>
+  </div>
+
+  <div class="app">
+
+    <!-- ── Header ── -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo">
+          <span class="logo-icon">📊</span>
+          <span class="logo-text">Widok Gantta</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <button class="nav-btn" id="btn-prev" title="Poprzedni dzień">‹</button>
+        <button class="nav-btn today-btn" id="btn-today">Dziś</button>
+        <span class="date-display" id="date-display">ładowanie…</span>
+        <button class="nav-btn" id="btn-next" title="Następny dzień">›</button>
+      </div>
+
+      <div class="header-right">
+        <button class="refresh-btn" id="btn-refresh">⟳ Odśwież dane</button>
+      </div>
+    </header>
+
+    <!-- ── Main chart area ── -->
+    <main class="chart-container" id="chart-container">
+
+      <!-- Loading -->
+      <div class="center-state" id="state-loading">
+        <div class="spinner"></div>
+        <p>Pobieranie danych z Google Calendar…</p>
+      </div>
+
+      <!-- Error -->
+      <div class="center-state hidden" id="state-error">
+        <span class="state-icon">⚠️</span>
+        <p id="error-msg">Błąd</p>
+        <button class="refresh-btn" id="btn-retry">Spróbuj ponownie</button>
+      </div>
+
+      <!-- Empty -->
+      <div class="center-state hidden" id="state-empty">
+        <span class="state-icon">📅</span>
+        <p>Brak wydarzeń — zmień dzień lub odśwież dane.</p>
+      </div>
+
+      <!-- Gantt wrapper (hidden until data loaded) -->
+      <div class="gantt-wrapper hidden" id="gantt-wrapper">
+
+        <!-- Y-axis sidebar (sticky left) -->
+        <div class="y-axis" id="y-axis">
+          <div class="y-axis-head">Kalendarze / Zadania</div>
+          <div class="y-axis-body" id="y-axis-body"></div>
+        </div>
+
+        <!-- Scrollable chart area -->
+        <div class="chart-scroll" id="chart-scroll">
+          <!-- Time ruler -->
+          <div class="time-ruler" id="time-ruler"></div>
+          <!-- Event rows -->
+          <div class="gantt-body" id="gantt-body"></div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="app-footer">
+      <div class="legend" id="legend"></div>
+      <div class="stats"  id="stats"></div>
+    </footer>
+
+  </div>
+
+  <script src="gantt.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "GCal Gantt View",
+  "version": "1.0",
+  "description": "Widok Gantta dla Google Calendar — oś X: godziny, oś Y: zadania według kalendarzy.",
+  "permissions": ["tabs"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Gantt View"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://calendar.google.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
