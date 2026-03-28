@@ -2,18 +2,14 @@
 // --- KONFIGURACJA SELEKTORÓW DLA GOOGLE CALENDAR ---
 const EVENT_BOX_SELECTOR = '[data-eventid]'; 
 
+// Flaga określająca czy wtyczka jest włączona
+let isPluginEnabled = true;
+
 // Przechowujemy ID zaznaczonych wydarzeń (aby opierać się na Google Calendar po odświeżeniu DOM)
 let selectedEventIds = new Set();
 let totalDurationMinutes = 0;
 
-// Blokowanie "odświeżania" przy zwykłym przesuwaniu (bez zmiany długości czasu)
-let isMouseDown = false;
-document.addEventListener('mousedown', () => { isMouseDown = true; });
-document.addEventListener('mouseup', () => { 
-  isMouseDown = false; 
-  // Odtwórz widok natychmiast po upuszczeniu
-  requestAnimationFrame(() => addDurationToEvents());
-});
+
 
 // Historia chroniąca przed "obliczaniem na nowo" podczas przesuwania
 const eventKnownDurations = new Map();
@@ -106,9 +102,13 @@ function updateTotalDisplay() {
 
 // Funkcja ciągle aplikująca modyfikacje (naprawia problem odświeżającego się DOM w GCal)
 function addDurationToEvents() {
+  if (!isPluginEnabled) return;
   const eventBoxes = document.querySelectorAll(EVENT_BOX_SELECTOR); 
   
   eventBoxes.forEach(box => {
+    // Ignoruj elementy w popupach (np. okienko podglądu/edycji wydarzenia)
+    if (box.closest('[role="dialog"]')) return;
+    
     // Odczytujemy tekst boxa (korzystamy z memoizacji w parseDuration by działało błyskawicznie)
     let timeText = box.innerText + " " + (box.getAttribute('aria-label') || "") + " " + (box.textContent || "");
     const duration = parseDuration(timeText);
@@ -146,12 +146,7 @@ function addDurationToEvents() {
       return;
     }
     
-    // ZAPOBIEGANIE AKTUALIZACJI PRZY ZWYKŁYM PRZESUWANIU:
-    // Jeśli przesuwasz wydarzenie myszką (isMouseDown), sprawdźmy czy jego czas w ogóle uległ zmianie.
-    // Jeśli "nie zmienił się czas trwania", nie obliczamy na nowo i pomijamy modyfikację (rozwiązuje to nakładanie ghostingów).
-    if (isMouseDown && eventKnownDurations.get(eventId) === durationString) {
-       return; 
-    }
+
     
     // Zapisujemy lub aktualizujemy znany nam czas dla tego elementu 
     eventKnownDurations.set(eventId, durationString);
@@ -206,11 +201,55 @@ const observer = new MutationObserver(() => {
   }); 
 });
 
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-  characterData: true
-});
+function startPlugin() {
+  addDurationToEvents();
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+}
 
-// Pierwsze uruchomienie
-addDurationToEvents();
+function stopPlugin() {
+  observer.disconnect();
+  if (updateTimeout) cancelAnimationFrame(updateTimeout);
+  
+  // Wyczyść zaznaczenia i sumę
+  selectedEventIds.clear();
+  totalDurationMinutes = 0;
+  
+  // Usuń wszystkie odznaki z czasem i klasy zaznaczenia
+  document.querySelectorAll('.event-duration-badge').forEach(b => b.remove());
+  document.querySelectorAll('.selected-for-sum').forEach(box => box.classList.remove('selected-for-sum'));
+  
+  // Wyczyść wyświetlacz sumy
+  const display = document.getElementById('total-duration-display');
+  if (display) {
+    display.style.display = 'none';
+  }
+}
+
+// Inicjalizacja z odczytem z Chrome Storage
+if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+  chrome.storage.sync.get({ pluginEnabled: true }, (data) => {
+    isPluginEnabled = data.pluginEnabled;
+    if (isPluginEnabled) {
+      startPlugin();
+    }
+  });
+
+  // Nasłuchiwanie na zmiany w ustawieniach
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'sync' && changes.pluginEnabled) {
+      isPluginEnabled = changes.pluginEnabled.newValue;
+      if (isPluginEnabled) {
+        startPlugin();
+      } else {
+        stopPlugin();
+      }
+    }
+  });
+} else {
+  // W przypadku testów poza rozszerzeniem Chrome, domyślnie uruchom
+  startPlugin();
+}
